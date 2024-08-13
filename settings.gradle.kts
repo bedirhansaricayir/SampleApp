@@ -21,3 +21,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "EterationCase"
 include(":app")
+include(":core:model")

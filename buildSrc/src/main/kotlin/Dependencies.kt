@@ -9,6 +9,8 @@ object Kotlin {
     private val coroutinesAndroid by lazy { "org.jetbrains.kotlinx:kotlinx-coroutines-android:${Versions.coroutinesAndroidVersion}" }
     private val lifecycleRuntimeKtx by lazy { "androidx.lifecycle:lifecycle-runtime-ktx:${Versions.lifecycleRuntimeKtxVersion}" }
     val ktxViewModel by lazy { "androidx.lifecycle:lifecycle-viewmodel-ktx:${Versions.lifecycleViewmodelKtxVersion}" }
+    val kotlinSerializationJson by lazy { "org.jetbrains.kotlinx:kotlinx-serialization-json:${Versions.serializationVersion}" }
+
     val list =
         listOf(coreKtx, platformKotlin, coroutinesCore, coroutinesCore, lifecycleRuntimeKtx, coroutinesAndroid, ktxViewModel)
 }

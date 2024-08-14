@@ -12,4 +12,7 @@ object BuildPlugins {
     const val DAGGER_HILT = "com.google.dagger.hilt.android"
     const val KOTLIN_KAPT = "kotlin-kapt"
     const val ANDROID_LIBRARY_PLUGIN = "com.android.library"
+    const val SERIALIZATION = "kotlinx-serialization"
+    const val SERIALIZATION_PLUGIN = "plugin.serialization"
+
 }

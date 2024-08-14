@@ -10,6 +10,8 @@ import androidx.navigation.navigation
 import com.eterationcase.app.core.navigation.AppNavigation
 import com.eterationcase.app.core.navigation.screens.AppScreen
 import com.eterationcase.app.core.navigation.screens.NavBarScreen
+import com.eterationcase.app.feature.detail.navigation.detailScreen
+import com.eterationcase.app.feature.detail.navigation.navigateToDetail
 import com.eterationcase.app.feature.home.navigation.homeScreen
 
 /**
@@ -35,9 +37,11 @@ private fun NavGraphBuilder.homeRoot(navController: NavController) {
         startDestination = AppScreen.Home
     ) {
         homeScreen(
-            navigateToDetail = { productId ->
+            navigateToDetail = navController::navigateToDetail
+        )
 
-            }
+        detailScreen(
+            onNavigateBack = navController::popBackStack
         )
     }
 }

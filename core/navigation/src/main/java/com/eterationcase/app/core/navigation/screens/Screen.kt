@@ -24,7 +24,7 @@ sealed class AppScreen {
 
     //<!-- region Sub-Dashboard -->
     @Serializable data object Home : AppScreen()
-    @Serializable data object Detail : AppScreen()
+    @Serializable data class Detail(val productId: String) : AppScreen()
     //<!-- endregion -->
 
     //<!-- region Sub-Basket -->

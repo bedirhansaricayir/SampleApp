@@ -51,6 +51,8 @@ android {
 }
 
 dependencies {
+    api(project(":core:navigation"))
+    api(project(":feature:home"))
 
     Kotlin.list.forEach(::api)
     Compose.list.forEach(::api)

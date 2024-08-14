@@ -29,4 +29,5 @@ object Versions {
     const val okhttpVersion = "5.0.0-alpha.2"
     const val okhttpInterceptorVersion = "5.0.0-alpha.2"
     const val serializationVersion = "1.6.0"
+    const val coilVersion = "2.7.0"
 }

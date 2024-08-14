@@ -52,3 +52,7 @@ object Network {
     val okHttpInterceptor by lazy { "com.squareup.okhttp3:logging-interceptor:${Versions.okhttpInterceptorVersion}" }
     val list = listOf(retrofit, gsonConvertor, okHttp, okHttpInterceptor)
 }
+
+object ThirdParty {
+    val coil by lazy { "io.coil-kt:coil-compose:${Versions.coilVersion}" }
+}

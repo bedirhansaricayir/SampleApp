@@ -14,7 +14,7 @@ import com.eterationcase.app.core.navigation.bottom_nav.BottomNavigationBar
  */
 
 @Composable
-fun AppNavigationWithBottomBar(
+fun AppNavigation(
     navController: NavHostController,
     appNavigation: @Composable (navController: NavHostController) -> Unit
 

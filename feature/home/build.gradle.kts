@@ -45,10 +45,12 @@ android {
 dependencies {
     api(project(":core:base"))
     api(project(":core:domain"))
+    api(project(":core:navigation"))
 
 
     Kotlin.list.forEach(::api)
     Compose.list.forEach(::api)
+    api(ThirdParty.coil)
 
     with(Di) {
         implementation(hiltAndroid)

@@ -147,6 +147,9 @@ fun CartScreenListContent(
                 .fillMaxSize()
                 .padding(innerPadding)
         ) {
+            if (state.isEmpty()) {
+                NotFoundProductInCart()
+            }
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
@@ -204,7 +207,9 @@ fun CartListItem(
     onDecreaseClick: (Product) -> Unit
 ) {
     Row(
-        modifier = modifier.fillMaxWidth().padding(8.dp),
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(8.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -237,6 +242,21 @@ fun CartListItem(
                 onClick = { onIncreaseClick(product) }
             )
         }
+    }
+}
+
+@Composable
+fun NotFoundProductInCart(
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(text = "Not Found Product In Cart")
     }
 }
 

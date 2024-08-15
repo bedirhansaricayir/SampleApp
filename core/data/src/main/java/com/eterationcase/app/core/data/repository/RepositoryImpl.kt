@@ -63,5 +63,8 @@ internal class RepositoryImpl @Inject constructor(
         return cartItemDao.deleteCartItem(productId)
     }
 
+    override fun getCartProductsCount(): Flow<Int> {
+        return cartItemDao.getCartItemCount()
+    }
 
 }

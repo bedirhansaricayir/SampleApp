@@ -16,12 +16,13 @@ import com.eterationcase.app.core.navigation.bottom_nav.BottomNavigationBar
 @Composable
 fun AppNavigation(
     navController: NavHostController,
+    badgeCount: Int? = null,
     appNavigation: @Composable (navController: NavHostController) -> Unit
 
 ) {
     Scaffold(
         bottomBar = {
-            BottomNavigationBar(navController)
+            BottomNavigationBar(navController, badgeCount)
         }
     ) {
         Box(

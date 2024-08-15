@@ -26,4 +26,5 @@ interface Repository {
 
     suspend fun deleteProductFromCart(productId: String)
 
+    fun getCartProductsCount(): Flow<Int>
 }

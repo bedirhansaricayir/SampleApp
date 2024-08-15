@@ -1,5 +1,7 @@
 package com.eterationcase.app.core.navigation.bottom_nav
 
+import androidx.compose.material3.Badge
+import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
@@ -12,6 +14,7 @@ import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
+import com.eterationcase.app.core.navigation.screens.NavBarScreen
 
 /**
  * Created by bedirhansaricayir on 14.08.2024
@@ -20,6 +23,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 @Composable
 internal fun BottomNavigationBar(
     navController: NavHostController,
+    badgeCount: Int? = null,
 ) {
     val navBackStackEntry = navController.currentBackStackEntryAsState().value
     val currentDestination = navBackStackEntry?.destination
@@ -37,10 +41,24 @@ internal fun BottomNavigationBar(
                 selected = isSelected,
                 label = { Text(text = item.title) },
                 icon = {
-                    Icon(
-                        painter = painterResource(id = if (isSelected) item.selectedIcon else item.unselectedIcon),
-                        contentDescription = item.title,
+                    BadgedBox(
+                        badge = {
+                            if (item.route == NavBarScreen.Basket) {
+                                if (badgeCount != null) {
+                                    Badge {
+                                        Text(text = "$badgeCount")
+                                    }
+                                }
+                            }
+                        }
                     )
+                    {
+                        Icon(
+                            painter = painterResource(id = if (isSelected) item.selectedIcon else item.unselectedIcon),
+                            contentDescription = item.title,
+                        )
+                    }
+
                 },
                 onClick = {
                     navController.navigate(item.route) {

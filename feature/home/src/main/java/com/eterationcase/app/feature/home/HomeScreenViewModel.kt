@@ -3,6 +3,7 @@ package com.eterationcase.app.feature.home
 import androidx.lifecycle.viewModelScope
 import com.eterationcase.app.core.base.viewmodel.BaseViewModel
 import com.eterationcase.app.core.common.response.Response
+import com.eterationcase.app.core.domain.usecase.AddToCartUseCase
 import com.eterationcase.app.core.domain.usecase.GetProductsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -15,7 +16,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class HomeScreenViewModel @Inject constructor(
-    private val getProductsUseCase: GetProductsUseCase
+    private val getProductsUseCase: GetProductsUseCase,
+    private val addToCartUseCase: AddToCartUseCase
 ) : BaseViewModel<HomeScreenUIState, HomeScreenUIEvent, HomeScreenUIEffect>() {
     override fun setInitialState(): HomeScreenUIState = HomeScreenUIState.Loading
 
@@ -24,9 +26,7 @@ class HomeScreenViewModel @Inject constructor(
             is HomeScreenUIEvent.OnProductClick -> {
                 setEffect(HomeScreenUIEffect.NavigateToDetail(event.productId))
             }
-            HomeScreenUIEvent.OnAddToCardClick -> {
-
-            }
+            is HomeScreenUIEvent.OnAddToCardClick -> addToCart(event.productId)
         }
     }
 
@@ -51,6 +51,12 @@ class HomeScreenViewModel @Inject constructor(
                     }
                 }
             }
+        }
+    }
+
+    private fun addToCart(productId: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            addToCartUseCase.invoke(productId)
         }
     }
 }

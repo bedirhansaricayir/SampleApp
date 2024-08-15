@@ -152,7 +152,7 @@ fun ListScreen(
                 onItemClick = { id ->
                     onEvent(HomeScreenUIEvent.OnProductClick(id))
                 },
-                onAddToCardClick = { onEvent(HomeScreenUIEvent.OnAddToCardClick) }
+                onAddToCardClick = { onEvent(HomeScreenUIEvent.OnAddToCardClick(product.id)) }
             )
         }
     }

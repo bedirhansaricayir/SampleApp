@@ -7,6 +7,6 @@ import com.eterationcase.app.core.base.viewmodel.Event
  */
 sealed interface HomeScreenUIEvent : Event {
     data class OnProductClick(val productId: String) : HomeScreenUIEvent
-    data object OnAddToCardClick : HomeScreenUIEvent
+    data class OnAddToCardClick(val productId: String) : HomeScreenUIEvent
 
 }

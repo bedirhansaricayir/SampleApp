@@ -184,6 +184,10 @@ fun ListScreen(
     val screenHeight = configuration.screenHeightDp.dp
     val itemHeight = screenHeight / 2
 
+    if (list?.isEmpty() == true) {
+        ProductNotFound()
+    }
+
     LazyVerticalGrid(
         modifier = modifier
             .fillMaxSize(),
@@ -203,8 +207,21 @@ fun ListScreen(
             )
         }
     }
+}
 
-
+@Composable
+fun ProductNotFound(
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(text = "Product Not Found")
+    }
 }
 
 @Composable

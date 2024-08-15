@@ -9,5 +9,8 @@ sealed interface HomeScreenUIEvent : Event {
     data class OnProductClick(val productId: String) : HomeScreenUIEvent
     data class OnAddToCardClick(val productId: String) : HomeScreenUIEvent
     data class OnSearchQueryChanged(val searchQuery: String) : HomeScreenUIEvent
+    data class OnApplyFilter(val sortBy: String, val brands: List<String>?) : HomeScreenUIEvent
+    data class OnBrandSelected(val brand: String) : HomeScreenUIEvent
+    data object OnClearFilter : HomeScreenUIEvent
 
 }

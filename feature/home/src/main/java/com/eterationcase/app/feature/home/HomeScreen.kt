@@ -9,6 +9,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
@@ -40,9 +41,11 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -63,6 +66,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import com.eterationcase.app.core.model.Product
+import com.eterationcase.app.feature.home.components.FilterBottomSheet
 
 /**
  * Created by bedirhansaricayir on 14.08.2024
@@ -75,6 +79,7 @@ fun HomeScreen(
     navigateToDetail: (String) -> Unit
 ) {
     val homeUIState: HomeScreenUIState by viewModel.state.collectAsStateWithLifecycle()
+    val selectedBrands by viewModel.selectedBrands.collectAsStateWithLifecycle()
     val homeScreenUIEffect = viewModel.effect
 
     LaunchedEffect(homeScreenUIEffect) {
@@ -93,6 +98,7 @@ fun HomeScreen(
         HomeScreenContent(
             modifier = modifier.padding(it),
             state = homeUIState,
+            selectedBrands = selectedBrands,
             onEvent = viewModel::setEvent
         )
     }
@@ -102,6 +108,7 @@ fun HomeScreen(
 fun HomeScreenContent(
     modifier: Modifier = Modifier,
     state: HomeScreenUIState,
+    selectedBrands: List<String>,
     onEvent: (HomeScreenUIEvent) -> Unit
 ) {
 
@@ -135,7 +142,8 @@ fun HomeScreenContent(
 
                     HomeScreenUIState.Loading -> LoadingScreen()
                     is HomeScreenUIState.Success -> ListScreen(
-                        list = state.data.orEmpty(),
+                        state = state,
+                        selectedBrands = selectedBrands,
                         onEvent = onEvent
                     )
                 }
@@ -174,39 +182,85 @@ fun LoadingScreen(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ListScreen(
     modifier: Modifier = Modifier,
-    list: List<Product>?,
+    state: HomeScreenUIState.Success,
+    selectedBrands: List<String>,
     onEvent: (HomeScreenUIEvent) -> Unit
 ) {
     val configuration = LocalConfiguration.current
     val screenHeight = configuration.screenHeightDp.dp
     val itemHeight = screenHeight / 2
+    val bottomSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    var showSheet by remember { mutableStateOf(false) }
+    val sortByOptionList = listOf(
+        "Old to new",
+        "New to old",
+        "Price high to low",
+        "Price low to high"
+    )
+    var selectedSortByIndex by remember { mutableIntStateOf(0) }
 
-    if (list?.isEmpty() == true) {
+    if (state.data?.isEmpty() == true) {
         ProductNotFound()
     }
 
-    LazyVerticalGrid(
-        modifier = modifier
-            .fillMaxSize(),
-        columns = GridCells.Fixed(2),
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        items(list.orEmpty(), key = { it.id }) { product ->
-            ProductItem(
-                modifier = Modifier.animateItem(),
-                product = product,
-                itemHeight = itemHeight,
-                onItemClick = { id ->
-                    onEvent(HomeScreenUIEvent.OnProductClick(id))
-                },
-                onAddToCardClick = { onEvent(HomeScreenUIEvent.OnAddToCardClick(product.id)) }
-            )
+    Column {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 8.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(text = "Filters:")
+            ElevatedButton(
+                modifier = Modifier.padding(horizontal = 8.dp),
+                shape = RoundedCornerShape(0.dp),
+                colors = ButtonDefaults.elevatedButtonColors(
+                    containerColor = Color.LightGray,
+                    contentColor = Color.Black.copy(alpha = 0.5f)
+                ),
+                onClick = { showSheet = true }
+            ) {
+                Text(text = "Select Filter")
+            }
+        }
+        LazyVerticalGrid(
+            modifier = modifier
+                .fillMaxSize(),
+            columns = GridCells.Fixed(2),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            items(state.data.orEmpty(), key = { it.id }) { product ->
+                ProductItem(
+                    modifier = Modifier.animateItem(),
+                    product = product,
+                    itemHeight = itemHeight,
+                    onItemClick = { id ->
+                        onEvent(HomeScreenUIEvent.OnProductClick(id))
+                    },
+                    onAddToCardClick = { onEvent(HomeScreenUIEvent.OnAddToCardClick(product.id)) }
+                )
+            }
         }
     }
+
+    FilterBottomSheet(
+        sheetState = bottomSheetState,
+        onEvent = onEvent,
+        show = showSheet,
+        isFilterApplying = state.isFilterApplying,
+        brandList = state.brandList.orEmpty(),
+        onDismissRequest = { showSheet = false },
+        selectedBrands = selectedBrands,
+        sortByOptionList = sortByOptionList,
+        selectedSortByItem = sortByOptionList[selectedSortByIndex],
+        onSelectedSortByIndex = { selectedSortByIndex = it }
+    )
 }
 
 @Composable
@@ -238,7 +292,7 @@ fun ProductItem(
         modifier = modifier
             .fillMaxWidth()
             .height(itemHeight)
-            .padding(8.dp)
+            .padding(4.dp)
             .clickable { onItemClick(product.id) },
         elevation = CardDefaults.cardElevation(8.dp),
         shape = RoundedCornerShape(0.dp)

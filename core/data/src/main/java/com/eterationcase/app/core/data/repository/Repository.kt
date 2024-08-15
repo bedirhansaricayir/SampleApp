@@ -15,4 +15,15 @@ interface Repository {
     suspend fun getProductsFromCache(): List<Product>
 
     suspend fun getProductById(id: String): Flow<Product?>
+
+    suspend fun addToCart(productId: String)
+
+    fun getCardProducts(): Flow<List<Product>>
+
+    suspend fun increaseQuantity(productId: String)
+
+    suspend fun decreaseQuantity(productId: String)
+
+    suspend fun deleteProductFromCart(productId: String)
+
 }

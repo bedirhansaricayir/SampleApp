@@ -18,7 +18,8 @@ data class ProductEntity(
     val model: String,
     val brand: String,
     @PrimaryKey(autoGenerate = false)
-    val id: String
+    val id: String,
+    val quantity: Int? = null
 )
 
 fun ProductEntity.toDomain() = with(this) {
@@ -30,6 +31,7 @@ fun ProductEntity.toDomain() = with(this) {
         description = description,
         model = model,
         brand = brand,
-        id = id
+        id = id,
+        quantity = quantity
     )
 }

@@ -1,6 +1,7 @@
 package com.eterationcase.app.core.database.di
 
 import com.eterationcase.app.core.database.Database
+import com.eterationcase.app.core.database.dao.CartItemDao
 import com.eterationcase.app.core.database.dao.ProductDao
 import dagger.Module
 import dagger.Provides
@@ -18,4 +19,9 @@ internal object DaosModule {
     fun providesProductDao(
         database: Database
     ): ProductDao = database.productDao()
+
+    @Provides
+    fun providesCartItemDao(
+        database: Database
+    ): CartItemDao = database.cartItemDao()
 }

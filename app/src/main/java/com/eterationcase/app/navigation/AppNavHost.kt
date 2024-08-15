@@ -10,6 +10,7 @@ import androidx.navigation.navigation
 import com.eterationcase.app.core.navigation.AppNavigation
 import com.eterationcase.app.core.navigation.screens.AppScreen
 import com.eterationcase.app.core.navigation.screens.NavBarScreen
+import com.eterationcase.app.feature.cart.navigation.cartScreen
 import com.eterationcase.app.feature.detail.navigation.detailScreen
 import com.eterationcase.app.feature.detail.navigation.navigateToDetail
 import com.eterationcase.app.feature.home.navigation.homeScreen
@@ -28,6 +29,7 @@ fun AppNavHost(
             startDestination = NavBarScreen.Home
         ) {
             homeRoot(navController)
+            basketRoot(navController)
         }
     }
 }
@@ -43,5 +45,13 @@ private fun NavGraphBuilder.homeRoot(navController: NavController) {
         detailScreen(
             onNavigateBack = navController::popBackStack
         )
+    }
+}
+
+private fun NavGraphBuilder.basketRoot(navController: NavController) {
+    navigation<NavBarScreen.Basket>(
+        startDestination = AppScreen.Basket
+    ) {
+        cartScreen()
     }
 }

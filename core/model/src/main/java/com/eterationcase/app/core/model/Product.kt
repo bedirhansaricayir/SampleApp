@@ -12,5 +12,6 @@ data class Product(
     val description: String,
     val model: String,
     val brand: String,
-    val id: String
+    val id: String,
+    val quantity: Int? = null
 )

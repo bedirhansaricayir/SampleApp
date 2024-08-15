@@ -9,6 +9,6 @@ import com.eterationcase.app.core.base.viewmodel.Event
 sealed interface DetailScreenUIEvent : Event {
     data class GetProduct(val productId: String) : DetailScreenUIEvent
     data object OnBackClicked : DetailScreenUIEvent
-    data object OnAddToCardClicked : DetailScreenUIEvent
+    data class OnAddToCardClicked(val productId: String) : DetailScreenUIEvent
     data object OnFavoriteClicked : DetailScreenUIEvent
 }

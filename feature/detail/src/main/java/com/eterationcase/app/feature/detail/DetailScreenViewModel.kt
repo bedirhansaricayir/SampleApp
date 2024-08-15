@@ -2,6 +2,7 @@ package com.eterationcase.app.feature.detail
 
 import androidx.lifecycle.viewModelScope
 import com.eterationcase.app.core.base.viewmodel.BaseViewModel
+import com.eterationcase.app.core.domain.usecase.AddToCartUseCase
 import com.eterationcase.app.core.domain.usecase.GetProductUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -14,15 +15,16 @@ import javax.inject.Inject
 
 @HiltViewModel
 class DetailScreenViewModel @Inject constructor(
-    private val getProductUseCase: GetProductUseCase
-): BaseViewModel<DetailScreenUIState,DetailScreenUIEvent,DetailScreenUIEffect>() {
+    private val getProductUseCase: GetProductUseCase,
+    private val addToCartUseCase: AddToCartUseCase,
+    ): BaseViewModel<DetailScreenUIState,DetailScreenUIEvent,DetailScreenUIEffect>() {
     override fun setInitialState(): DetailScreenUIState = DetailScreenUIState.Loading
 
     override fun handleEvents(event: DetailScreenUIEvent) {
         when(event) {
             is DetailScreenUIEvent.GetProduct -> getProduct(event.productId)
             DetailScreenUIEvent.OnBackClicked -> setEffect(DetailScreenUIEffect.NavigateBack)
-            DetailScreenUIEvent.OnAddToCardClicked -> {}
+            is DetailScreenUIEvent.OnAddToCardClicked -> addToCart(event.productId)
             DetailScreenUIEvent.OnFavoriteClicked -> {}
         }
     }
@@ -37,6 +39,11 @@ class DetailScreenViewModel @Inject constructor(
                     setState(DetailScreenUIState.Error("Product not found"))
                 }
             }
+        }
+    }
+    private fun addToCart(productId: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            addToCartUseCase.invoke(productId)
         }
     }
 

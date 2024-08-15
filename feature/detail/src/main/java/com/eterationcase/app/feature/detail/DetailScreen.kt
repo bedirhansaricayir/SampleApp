@@ -220,7 +220,7 @@ fun DetailScreenProductContent(
                         containerColor = Color(0xFF2A59FE),
                         contentColor = Color.White
                     ),
-                    onClick = { onEvent(DetailScreenUIEvent.OnAddToCardClicked)}
+                    onClick = { onEvent(DetailScreenUIEvent.OnAddToCardClicked(state.data.id))}
                 ) {
                     Text(text = "Add to Cart")
                 }

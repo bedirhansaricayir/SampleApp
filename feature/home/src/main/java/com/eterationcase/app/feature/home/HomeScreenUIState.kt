@@ -9,6 +9,6 @@ import com.eterationcase.app.core.model.Product
 sealed interface HomeScreenUIState : State {
 
     data object Loading : HomeScreenUIState
-    data class Success(val data: List<Product>) : HomeScreenUIState
+    data class Success(val data: List<Product>?) : HomeScreenUIState
     data class Error(val message: String?) : HomeScreenUIState
 }

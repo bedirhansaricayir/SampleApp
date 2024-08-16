@@ -1,21 +1,22 @@
-@file:OptIn(FlowPreview::class)
-
 package com.eterationcase.app.feature.home
 
 import androidx.lifecycle.viewModelScope
 import com.eterationcase.app.core.base.viewmodel.BaseViewModel
-import com.eterationcase.app.core.common.response.Response
 import com.eterationcase.app.core.domain.usecase.AddToCartUseCase
+import com.eterationcase.app.core.domain.usecase.GetProductFromNetworkUseCase
 import com.eterationcase.app.core.domain.usecase.GetProductsUseCase
+import com.eterationcase.app.core.domain.usecase.InsertProductsToCacheUseCase
 import com.eterationcase.app.core.domain.usecase.UpdateFavoriteStatusUseCase
 import com.eterationcase.app.core.model.Product
 import com.eterationcase.app.feature.home.util.parseDate
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -27,15 +28,51 @@ import javax.inject.Inject
 @HiltViewModel
 class HomeScreenViewModel @Inject constructor(
     private val getProductsUseCase: GetProductsUseCase,
+    private val getProductFromNetworkUseCase: GetProductFromNetworkUseCase,
+    private val insertProductsToCacheUseCase: InsertProductsToCacheUseCase,
     private val addToCartUseCase: AddToCartUseCase,
-    private val updateFavoriteStatusUseCase: UpdateFavoriteStatusUseCase
+    private val updateFavoriteStatusUseCase: UpdateFavoriteStatusUseCase,
 ) : BaseViewModel<HomeScreenUIState, HomeScreenUIEvent, HomeScreenUIEffect>() {
 
     private var productList: List<Product>? = null
-    private val _searchQuery = MutableStateFlow("")
 
     private val _selectedBrands: MutableStateFlow<List<String>> = MutableStateFlow(emptyList())
     val selectedBrands: StateFlow<List<String>> = _selectedBrands
+
+    private val _products = MutableStateFlow<List<Product>>(emptyList())
+
+    private val _searchQuery = MutableStateFlow("")
+
+    val products: StateFlow<List<Product>> = combine(
+        _products,
+        selectedBrands,
+        _searchQuery
+    ) { products, selectedBrands, searchQuery ->
+
+        productList = products
+        var filteredProducts = products
+
+        if (selectedBrands.isNotEmpty()) {
+            filteredProducts = filteredProducts.filter { it.brand in selectedBrands }
+        }
+
+        if (searchQuery.isNotEmpty()) {
+            filteredProducts =
+                filteredProducts.filter { it.name.contains(searchQuery, ignoreCase = true) }
+        }
+
+        updateState { currentState ->
+            (currentState as HomeScreenUIState.Success).copy(brandList = getBrandList())
+        }
+
+
+        filteredProducts
+
+    }.onStart { setState(HomeScreenUIState.Success(emptyList(), brandList = emptyList())) }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = emptyList()
+    )
 
     override fun setInitialState(): HomeScreenUIState = HomeScreenUIState.Loading
 
@@ -51,46 +88,24 @@ class HomeScreenViewModel @Inject constructor(
             is HomeScreenUIEvent.OnApplyFilter -> applyFilter(event.sortBy, event.brands)
             is HomeScreenUIEvent.OnBrandSelected -> onBrandSelected(event.brand)
             is HomeScreenUIEvent.OnClearFilter -> clearFilter()
-            is HomeScreenUIEvent.OnFavoriteClick -> updateFavoriteStatus(event.productId,event.isFavorite)
+            is HomeScreenUIEvent.OnFavoriteClick -> updateFavoriteStatus(event.productId, event.isFavorite)
         }
     }
 
     init {
         getProducts()
-        viewModelScope.launch {
-            _searchQuery.debounce(500).collect { query ->
-                setState(
-                    HomeScreenUIState.Success(data = filterListByBrands(query), brandList = (getCurrentState() as? HomeScreenUIState.Success)?.brandList )
-                )
-            }
-        }
     }
 
     private fun getProducts() {
         viewModelScope.launch(Dispatchers.IO) {
-            getProductsUseCase.invoke().collect { response ->
-                when (response) {
-                    is Response.Error -> {
-                        setState(HomeScreenUIState.Error(response.errorMessage))
-                    }
-
-                    Response.Loading -> {
-                        setState(HomeScreenUIState.Loading)
-                    }
-
-                    is Response.Success -> {
-                        response.data?.let { products ->
-                            productList = products
-                            setState(
-                                HomeScreenUIState.Success(
-                                    data = products,
-                                    brandList = getBrandList()
-                                )
-                            )
-                        }
-                    }
-                }
-            }
+            getProductsUseCase.invoke().collect {
+              if (it.isEmpty()) {
+                  val fromNetwork = getProductFromNetworkUseCase.invoke()
+                  insertProductsToCacheUseCase.invoke(fromNetwork)
+              }
+              productList = it
+              _products.value = it
+          }
         }
     }
 

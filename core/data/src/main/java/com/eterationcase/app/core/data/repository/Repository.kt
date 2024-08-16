@@ -12,7 +12,7 @@ interface Repository {
 
     suspend fun insertProductsToCache(products: List<Product>)
 
-    suspend fun getProductsFromCache(): List<Product>
+    fun getProductsFromCache(): Flow<List<Product>>
 
     suspend fun getProductById(id: String): Flow<Product?>
 

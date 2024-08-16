@@ -2,6 +2,7 @@ package com.eterationcase.app.core.database.dao
 
 import androidx.room.Dao
 import androidx.room.Insert
+import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.eterationcase.app.core.database.entity.ProductEntity
 import kotlinx.coroutines.flow.Flow
@@ -13,11 +14,8 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface ProductDao {
 
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertProducts(products: List<ProductEntity>)
-
-    @Query("SELECT * FROM products")
-    fun getAllProducts(): List<ProductEntity>
 
     @Query("SELECT * FROM products WHERE id = :productId")
     fun getProductById(productId: String): Flow<ProductEntity?>
@@ -27,4 +25,7 @@ interface ProductDao {
 
     @Query("UPDATE products SET isFavorite = :isFavorite WHERE id = :productId")
     suspend fun updateFavoriteStatus(productId: String, isFavorite: Boolean)
+
+    @Query("SELECT * FROM products")
+    fun getProducts(): Flow<List<ProductEntity>>
 }

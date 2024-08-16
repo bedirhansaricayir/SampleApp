@@ -21,18 +21,16 @@ internal class RepositoryImpl @Inject constructor(
     private val remoteDataSource: RemoteDataSource
 ) : Repository {
     override suspend fun getProductsFromNetwork(): List<Product> {
-       val productsNetwork = remoteDataSource.getProducts()
-        return productsNetwork.map { it.toDomain() }
+        return remoteDataSource.getProducts().map { it.toDomain() }
     }
     override suspend fun insertProductsToCache(products: List<Product>) {
         localDataSource.insertProducts(products.map { it.toEntity() })
     }
-    override suspend fun getProductsFromCache(): List<Product> {
-        val productsCache = localDataSource.getAllProducts()
-        return productsCache.map { it.toDomain() }
+    override fun getProductsFromCache(): Flow<List<Product>> {
+        return localDataSource.getProducts().map { list -> list.map { it.toDomain() } }
     }
     override suspend fun getProductById(id: String): Flow<Product?> {
-       val productEntity =  localDataSource.getProductById(id)
+       val productEntity = localDataSource.getProductById(id)
        return productEntity.map { it?.toDomain() }
     }
     override suspend fun addToCart(productId: String) {

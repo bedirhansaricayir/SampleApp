@@ -80,6 +80,7 @@ fun HomeScreen(
 ) {
     val homeUIState: HomeScreenUIState by viewModel.state.collectAsStateWithLifecycle()
     val selectedBrands by viewModel.selectedBrands.collectAsStateWithLifecycle()
+    val products by viewModel.products.collectAsStateWithLifecycle()
     val homeScreenUIEffect = viewModel.effect
 
     LaunchedEffect(homeScreenUIEffect) {
@@ -98,6 +99,7 @@ fun HomeScreen(
         HomeScreenContent(
             modifier = modifier.padding(it),
             state = homeUIState,
+            products = products,
             selectedBrands = selectedBrands,
             onEvent = viewModel::setEvent
         )
@@ -108,6 +110,7 @@ fun HomeScreen(
 fun HomeScreenContent(
     modifier: Modifier = Modifier,
     state: HomeScreenUIState,
+    products: List<Product>?,
     selectedBrands: List<String>,
     onEvent: (HomeScreenUIEvent) -> Unit
 ) {
@@ -143,6 +146,7 @@ fun HomeScreenContent(
                     HomeScreenUIState.Loading -> LoadingScreen()
                     is HomeScreenUIState.Success -> ListScreen(
                         state = state,
+                        products = products,
                         selectedBrands = selectedBrands,
                         onEvent = onEvent
                     )
@@ -187,6 +191,7 @@ fun LoadingScreen(
 fun ListScreen(
     modifier: Modifier = Modifier,
     state: HomeScreenUIState.Success,
+    products: List<Product>?,
     selectedBrands: List<String>,
     onEvent: (HomeScreenUIEvent) -> Unit
 ) {
@@ -203,7 +208,7 @@ fun ListScreen(
     )
     var selectedSortByIndex by remember { mutableIntStateOf(0) }
 
-    if (state.data.isNullOrEmpty()) {
+    if (products.isNullOrEmpty()) {
         ProductNotFound()
     }
 
@@ -235,7 +240,7 @@ fun ListScreen(
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            items(state.data.orEmpty(), key = { it.id }) { product ->
+            items(products.orEmpty(), key = { it.id }) { product ->
                 ProductItem(
                     modifier = Modifier.animateItem(),
                     product = product,

@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -53,13 +52,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -195,9 +192,6 @@ fun ListScreen(
     selectedBrands: List<String>,
     onEvent: (HomeScreenUIEvent) -> Unit
 ) {
-    val configuration = LocalConfiguration.current
-    val screenHeight = configuration.screenHeightDp.dp
-    val itemHeight = screenHeight / 2
     val bottomSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     var showSheet by remember { mutableStateOf(false) }
     val sortByOptionList = listOf(
@@ -244,7 +238,6 @@ fun ListScreen(
                 ProductItem(
                     modifier = Modifier.animateItem(),
                     product = product,
-                    itemHeight = itemHeight,
                     onItemClick = { id ->
                         onEvent(HomeScreenUIEvent.OnProductClick(id))
                     },
@@ -290,7 +283,6 @@ fun ProductNotFound(
 fun ProductItem(
     modifier: Modifier = Modifier,
     product: Product,
-    itemHeight: Dp,
     onItemClick: (id: String) -> Unit,
     onAddToCardClick: (productId: String) -> Unit,
     onFavoriteClick: (productId: String, isFavorite: Boolean) -> Unit
@@ -300,12 +292,12 @@ fun ProductItem(
     Card(
         modifier = modifier
             .fillMaxWidth()
-            .height(itemHeight)
             .padding(4.dp)
             .clickable { onItemClick(product.id) },
         elevation = CardDefaults.cardElevation(8.dp),
         shape = RoundedCornerShape(0.dp)
     ) {
+        Column {
         Box(
             modifier
                 .fillMaxWidth()
@@ -327,41 +319,38 @@ fun ProductItem(
                 )
             }
         }
-        Box(modifier = Modifier.fillMaxHeight()) {
-            Text(
-                modifier = Modifier
-                    .align(Alignment.TopStart)
-                    .padding(horizontal = 8.dp),
-                text = "${product.price} ₺",
-                color = Color(0xFF2A59FE)
-            )
-            var padding by remember { mutableStateOf(0.dp) }
+        Text(
+            modifier = Modifier
+                .padding(horizontal = 8.dp),
+            text = "${product.price} ₺",
+            color = Color(0xFF2A59FE)
+        )
+        var padding by remember { mutableStateOf(0.dp) }
 
-            Text(
-                modifier = Modifier.align(Alignment.Center),
-                text = product.name,
-                color = Color.Black,
-                onTextLayout = {
-                    val lineCount = it.lineCount
-                    val height = (it.size.height / density).dp
-                    println("lineCount: $lineCount, Height: $height")
-                    padding = if (lineCount > 1) 0.dp else height
-                }
-            )
-            ElevatedButton(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .align(Alignment.BottomCenter)
-                    .padding(8.dp),
-                shape = RoundedCornerShape(4.dp),
-                colors = ButtonDefaults.elevatedButtonColors(
-                    containerColor = Color(0xFF2A59FE),
-                    contentColor = Color.White
-                ),
-                onClick = { onAddToCardClick(product.id) }
-            ) {
-                Text(text = "Add to Cart")
+        Text(
+            modifier = Modifier,
+            text = product.name,
+            color = Color.Black,
+            onTextLayout = {
+                val lineCount = it.lineCount
+                val height = (it.size.height / density).dp
+                println("lineCount: $lineCount, Height: $height")
+                padding = if (lineCount > 1) 0.dp else height
             }
+        )
+        ElevatedButton(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(8.dp),
+            shape = RoundedCornerShape(4.dp),
+            colors = ButtonDefaults.elevatedButtonColors(
+                containerColor = Color(0xFF2A59FE),
+                contentColor = Color.White
+            ),
+            onClick = { onAddToCardClick(product.id) }
+        ) {
+            Text(text = "Add to Cart")
+        }
         }
     }
 }

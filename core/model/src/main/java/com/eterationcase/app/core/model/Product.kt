@@ -13,5 +13,6 @@ data class Product(
     val model: String,
     val brand: String,
     val id: String,
-    val quantity: Int? = null
+    val quantity: Int? = null,
+    val isFavorite: Boolean = false
 )

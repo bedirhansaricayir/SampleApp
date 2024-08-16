@@ -203,7 +203,7 @@ fun ListScreen(
     )
     var selectedSortByIndex by remember { mutableIntStateOf(0) }
 
-    if (state.data?.isEmpty() == true) {
+    if (state.data.isNullOrEmpty()) {
         ProductNotFound()
     }
 
@@ -313,7 +313,8 @@ fun ProductItem(
             ) {
                 Icon(
                     imageVector = Icons.Outlined.Star,
-                    contentDescription = "Favorite Button"
+                    contentDescription = "Favorite Button",
+                    tint = if (product.isFavorite) Color.Yellow else Color.LightGray
                 )
             }
         }

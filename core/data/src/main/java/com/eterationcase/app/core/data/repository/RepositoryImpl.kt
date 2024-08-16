@@ -67,4 +67,12 @@ internal class RepositoryImpl @Inject constructor(
         return cartItemDao.getCartItemCount()
     }
 
+    override fun getFavoriteProducts(): Flow<List<Product>> {
+        return localDataSource.getFavoriteProducts().map { list -> list.map { it.toDomain() } }
+    }
+
+    override suspend fun updateFavoriteStatus(productId: String, isFavorite: Boolean) {
+        return localDataSource.updateFavoriteStatus(productId,isFavorite)
+    }
+
 }

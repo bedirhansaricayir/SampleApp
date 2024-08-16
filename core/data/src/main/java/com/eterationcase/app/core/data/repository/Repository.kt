@@ -27,4 +27,8 @@ interface Repository {
     suspend fun deleteProductFromCart(productId: String)
 
     fun getCartProductsCount(): Flow<Int>
+
+    fun getFavoriteProducts(): Flow<List<Product>>
+
+    suspend fun updateFavoriteStatus(productId: String, isFavorite: Boolean)
 }

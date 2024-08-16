@@ -16,6 +16,7 @@ import com.eterationcase.app.core.navigation.screens.NavBarScreen
 import com.eterationcase.app.feature.cart.navigation.cartScreen
 import com.eterationcase.app.feature.detail.navigation.detailScreen
 import com.eterationcase.app.feature.detail.navigation.navigateToDetail
+import com.eterationcase.app.feature.favorite.navigation.favoriteScreen
 import com.eterationcase.app.feature.home.navigation.homeScreen
 import com.eterationcase.app.ui.MainViewModel
 
@@ -40,6 +41,7 @@ fun AppNavHost(
         ) {
             homeRoot(navController)
             basketRoot(navController)
+            favoriteRoot(navController)
         }
     }
 }
@@ -63,5 +65,13 @@ private fun NavGraphBuilder.basketRoot(navController: NavController) {
         startDestination = AppScreen.Basket
     ) {
         cartScreen()
+    }
+}
+
+private fun NavGraphBuilder.favoriteRoot(navController: NavController) {
+    navigation<NavBarScreen.Favorite>(
+        startDestination = AppScreen.Favorite
+    ) {
+        favoriteScreen()
     }
 }

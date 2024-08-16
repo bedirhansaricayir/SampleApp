@@ -141,6 +141,7 @@ fun DetailScreenProductContent(
     onEvent: (DetailScreenUIEvent) -> Unit
 ) {
     Scaffold(
+        modifier = modifier,
         topBar = {
             DetailScreenTopBar(
                 title = state.data.name,
@@ -173,12 +174,12 @@ fun DetailScreenProductContent(
                     IconButton(
                         modifier = Modifier
                             .align(Alignment.TopEnd),
-                        onClick = { onEvent(DetailScreenUIEvent.OnFavoriteClicked) }
+                        onClick = { onEvent(DetailScreenUIEvent.OnFavoriteClicked(productId = state.data.id, isFavorite = !state.data.isFavorite)) }
                     ) {
                         Icon(
                             imageVector = Icons.Outlined.Star,
                             contentDescription = "Favorite Button",
-                            tint = Color.White
+                            tint = if (state.data.isFavorite) Color.Yellow else Color.White
                         )
                     }
                 }

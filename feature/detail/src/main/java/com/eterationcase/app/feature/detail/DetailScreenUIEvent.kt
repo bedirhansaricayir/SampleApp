@@ -10,5 +10,5 @@ sealed interface DetailScreenUIEvent : Event {
     data class GetProduct(val productId: String) : DetailScreenUIEvent
     data object OnBackClicked : DetailScreenUIEvent
     data class OnAddToCardClicked(val productId: String) : DetailScreenUIEvent
-    data object OnFavoriteClicked : DetailScreenUIEvent
+    data class OnFavoriteClicked(val productId: String, val isFavorite: Boolean) : DetailScreenUIEvent
 }

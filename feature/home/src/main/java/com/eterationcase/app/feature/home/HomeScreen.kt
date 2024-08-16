@@ -243,7 +243,10 @@ fun ListScreen(
                     onItemClick = { id ->
                         onEvent(HomeScreenUIEvent.OnProductClick(id))
                     },
-                    onAddToCardClick = { onEvent(HomeScreenUIEvent.OnAddToCardClick(product.id)) }
+                    onAddToCardClick = { onEvent(HomeScreenUIEvent.OnAddToCardClick(it)) },
+                    onFavoriteClick = { id, isFavorite ->
+                        onEvent(HomeScreenUIEvent.OnFavoriteClick(id,isFavorite))
+                    }
                 )
             }
         }
@@ -284,7 +287,8 @@ fun ProductItem(
     product: Product,
     itemHeight: Dp,
     onItemClick: (id: String) -> Unit,
-    onAddToCardClick: () -> Unit
+    onAddToCardClick: (productId: String) -> Unit,
+    onFavoriteClick: (productId: String, isFavorite: Boolean) -> Unit
 ) {
     val density = LocalDensity.current.density
 
@@ -309,7 +313,7 @@ fun ProductItem(
             IconButton(
                 modifier = Modifier
                     .align(Alignment.TopEnd),
-                onClick = { }
+                onClick = { onFavoriteClick(product.id,!product.isFavorite) }
             ) {
                 Icon(
                     imageVector = Icons.Outlined.Star,
@@ -349,7 +353,7 @@ fun ProductItem(
                     containerColor = Color(0xFF2A59FE),
                     contentColor = Color.White
                 ),
-                onClick = { onAddToCardClick() }
+                onClick = { onAddToCardClick(product.id) }
             ) {
                 Text(text = "Add to Cart")
             }

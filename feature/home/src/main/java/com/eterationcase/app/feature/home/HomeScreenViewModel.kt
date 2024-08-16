@@ -7,6 +7,7 @@ import com.eterationcase.app.core.base.viewmodel.BaseViewModel
 import com.eterationcase.app.core.common.response.Response
 import com.eterationcase.app.core.domain.usecase.AddToCartUseCase
 import com.eterationcase.app.core.domain.usecase.GetProductsUseCase
+import com.eterationcase.app.core.domain.usecase.UpdateFavoriteStatusUseCase
 import com.eterationcase.app.core.model.Product
 import com.eterationcase.app.feature.home.util.parseDate
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -27,6 +28,7 @@ import javax.inject.Inject
 class HomeScreenViewModel @Inject constructor(
     private val getProductsUseCase: GetProductsUseCase,
     private val addToCartUseCase: AddToCartUseCase,
+    private val updateFavoriteStatusUseCase: UpdateFavoriteStatusUseCase
 ) : BaseViewModel<HomeScreenUIState, HomeScreenUIEvent, HomeScreenUIEffect>() {
 
     private var productList: List<Product>? = null
@@ -49,6 +51,7 @@ class HomeScreenViewModel @Inject constructor(
             is HomeScreenUIEvent.OnApplyFilter -> applyFilter(event.sortBy, event.brands)
             is HomeScreenUIEvent.OnBrandSelected -> onBrandSelected(event.brand)
             is HomeScreenUIEvent.OnClearFilter -> clearFilter()
+            is HomeScreenUIEvent.OnFavoriteClick -> updateFavoriteStatus(event.productId,event.isFavorite)
         }
     }
 
@@ -187,6 +190,12 @@ class HomeScreenViewModel @Inject constructor(
 
     private fun clearSelectedBrands() {
         _selectedBrands.value = emptyList()
+    }
+
+    private fun updateFavoriteStatus(productId: String, isFavorite: Boolean) {
+        viewModelScope.launch(Dispatchers.IO) {
+            updateFavoriteStatusUseCase.invoke(productId = productId, isFavorite = isFavorite)
+        }
     }
 
 }

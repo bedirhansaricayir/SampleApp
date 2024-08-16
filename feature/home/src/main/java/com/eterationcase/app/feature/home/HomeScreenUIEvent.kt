@@ -12,5 +12,6 @@ sealed interface HomeScreenUIEvent : Event {
     data class OnApplyFilter(val sortBy: String, val brands: List<String>?) : HomeScreenUIEvent
     data class OnBrandSelected(val brand: String) : HomeScreenUIEvent
     data object OnClearFilter : HomeScreenUIEvent
+    data class OnFavoriteClick(val productId: String, val isFavorite: Boolean) : HomeScreenUIEvent
 
 }

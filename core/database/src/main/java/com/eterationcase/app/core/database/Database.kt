@@ -11,7 +11,7 @@ import com.eterationcase.app.core.database.entity.ProductEntity
  * Created by bedirhansaricayir on 14.08.2024
  */
 
-@Database(entities = [ProductEntity::class, CartItemEntity::class], version = 1)
+@Database(entities = [ProductEntity::class, CartItemEntity::class], version = 2)
 internal abstract class Database: RoomDatabase() {
     abstract fun productDao(): ProductDao
     abstract fun cartItemDao(): CartItemDao

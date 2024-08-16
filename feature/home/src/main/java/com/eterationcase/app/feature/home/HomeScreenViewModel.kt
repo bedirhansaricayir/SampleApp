@@ -39,6 +39,8 @@ class HomeScreenViewModel @Inject constructor(
     private val _selectedBrands: MutableStateFlow<List<String>> = MutableStateFlow(emptyList())
     val selectedBrands: StateFlow<List<String>> = _selectedBrands
 
+    private val selectedSortBy = MutableStateFlow("")
+
     private val _products = MutableStateFlow<List<Product>>(emptyList())
 
     private val _searchQuery = MutableStateFlow("")
@@ -46,8 +48,9 @@ class HomeScreenViewModel @Inject constructor(
     val products: StateFlow<List<Product>> = combine(
         _products,
         selectedBrands,
-        _searchQuery
-    ) { products, selectedBrands, searchQuery ->
+        _searchQuery,
+        selectedSortBy
+    ) { products, selectedBrands, searchQuery, sortBy ->
 
         productList = products
         var filteredProducts = products
@@ -59,6 +62,16 @@ class HomeScreenViewModel @Inject constructor(
         if (searchQuery.isNotEmpty()) {
             filteredProducts =
                 filteredProducts.filter { it.name.contains(searchQuery, ignoreCase = true) }
+        }
+
+        if (sortBy.isNotEmpty()) {
+            filteredProducts = when (sortBy) {
+                "Old to new" -> sortByAscending(filteredProducts)
+                "New to old" -> sortByDescending(filteredProducts)
+                "Price high to low" -> priceHighToLow(filteredProducts)
+                "Price low to high" -> priceLowToHigh(filteredProducts)
+                else -> filteredProducts
+            }
         }
 
         updateState { currentState ->
@@ -131,15 +144,8 @@ class HomeScreenViewModel @Inject constructor(
         brands: List<String>?
     ) {
         viewModelScope.launch(Dispatchers.IO) {
-            val sortedList = when (sortBy) {
-                "Old to new" -> sortByAscending(productList)
-                "New to old" -> sortByDescending(productList)
-                "Price high to low" -> priceHighToLow(productList)
-                "Price low to high" -> priceLowToHigh(productList)
-                else -> productList
-            }
-
-            val filteredList = filterByBrands(sortedList, brands)
+            selectedSortBy.value = sortBy
+            val filteredList = filterByBrands(productList, brands)
 
             setSelectedBrands(brands)
 
@@ -153,20 +159,20 @@ class HomeScreenViewModel @Inject constructor(
         }
     }
 
-    private fun sortByAscending(list: List<Product>?): List<Product>? {
-        return list?.sortedBy { it.createdAt.parseDate() }
+    private fun sortByAscending(list: List<Product>): List<Product> {
+        return list.sortedBy { it.createdAt.parseDate() }
     }
 
-    private fun sortByDescending(list: List<Product>?): List<Product>? {
-        return list?.sortedByDescending { it.createdAt.parseDate() }
+    private fun sortByDescending(list: List<Product>): List<Product> {
+        return list.sortedByDescending { it.createdAt.parseDate() }
     }
 
-    private fun priceHighToLow(list: List<Product>?): List<Product>? {
-        return list?.sortedByDescending { it.price.toDouble() }
+    private fun priceHighToLow(list: List<Product>): List<Product> {
+        return list.sortedByDescending { it.price.toDouble() }
     }
 
-    private fun priceLowToHigh(list: List<Product>?): List<Product>? {
-        return list?.sortedBy { it.price.toDouble() }
+    private fun priceLowToHigh(list: List<Product>): List<Product> {
+        return list.sortedBy { it.price.toDouble() }
     }
 
     private fun filterByBrands(sortedList: List<Product>?, brands: List<String>?): List<Product>? {

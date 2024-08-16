@@ -56,9 +56,9 @@ class HomeScreenViewModel @Inject constructor(
         getProducts()
         viewModelScope.launch {
             _searchQuery.debounce(500).collect { query ->
-                updateState { currentState ->
-                    (currentState as HomeScreenUIState.Success).copy(data = filterListByBrands(query))
-                }
+                setState(
+                    HomeScreenUIState.Success(data = filterListByBrands(query), brandList = (getCurrentState() as? HomeScreenUIState.Success)?.brandList )
+                )
             }
         }
     }

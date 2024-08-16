@@ -56,3 +56,11 @@ object Network {
 object ThirdParty {
     val coil by lazy { "io.coil-kt:coil-compose:${Versions.coilVersion}" }
 }
+
+object Test {
+    const val JUNIT = "junit:junit:${Versions.junit}"
+    const val MOCKK = "io.mockk:mockk:${Versions.mockk}"
+    const val TRUTH = "com.google.truth:truth:${Versions.truth}"
+    const val JUNIT_EXT = "androidx.test.ext:junit:${Versions.junit_ext}"
+    const val RUNNER = "androidx.test:runner:${Versions.runner}"
+}

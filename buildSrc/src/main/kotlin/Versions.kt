@@ -30,4 +30,9 @@ object Versions {
     const val okhttpInterceptorVersion = "5.0.0-alpha.2"
     const val serializationVersion = "1.6.0"
     const val coilVersion = "2.7.0"
+    const val junit = "4.13.2"
+    const val mockk = "1.13.7"
+    const val truth = "1.1.4"
+    const val junit_ext = "1.1.1"
+    const val runner = "1.5.2"
 }

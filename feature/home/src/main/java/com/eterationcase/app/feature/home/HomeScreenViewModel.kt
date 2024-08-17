@@ -3,9 +3,7 @@ package com.eterationcase.app.feature.home
 import androidx.lifecycle.viewModelScope
 import com.eterationcase.app.core.base.viewmodel.BaseViewModel
 import com.eterationcase.app.core.domain.usecase.AddToCartUseCase
-import com.eterationcase.app.core.domain.usecase.GetProductFromNetworkUseCase
 import com.eterationcase.app.core.domain.usecase.GetProductsUseCase
-import com.eterationcase.app.core.domain.usecase.InsertProductsToCacheUseCase
 import com.eterationcase.app.core.domain.usecase.UpdateFavoriteStatusUseCase
 import com.eterationcase.app.core.model.Product
 import com.eterationcase.app.feature.home.util.parseDate
@@ -27,9 +25,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class HomeScreenViewModel @Inject constructor(
-    private val getProductsUseCase: GetProductsUseCase,
-    private val getProductFromNetworkUseCase: GetProductFromNetworkUseCase,
-    private val insertProductsToCacheUseCase: InsertProductsToCacheUseCase,
+    getProductsUseCase: GetProductsUseCase,
     private val addToCartUseCase: AddToCartUseCase,
     private val updateFavoriteStatusUseCase: UpdateFavoriteStatusUseCase,
 ) : BaseViewModel<HomeScreenUIState, HomeScreenUIEvent, HomeScreenUIEffect>() {
@@ -41,12 +37,10 @@ class HomeScreenViewModel @Inject constructor(
 
     private val selectedSortBy = MutableStateFlow("")
 
-    private val _products = MutableStateFlow<List<Product>>(emptyList())
-
     private val _searchQuery = MutableStateFlow("")
 
     val products: StateFlow<List<Product>> = combine(
-        _products,
+        getProductsUseCase(),
         selectedBrands,
         _searchQuery,
         selectedSortBy
@@ -56,12 +50,11 @@ class HomeScreenViewModel @Inject constructor(
         var filteredProducts = products
 
         if (selectedBrands.isNotEmpty()) {
-            filteredProducts = filteredProducts.filter { it.brand in selectedBrands }
+            filteredProducts = filterByBrands(filteredProducts,selectedBrands)
         }
 
         if (searchQuery.isNotEmpty()) {
-            filteredProducts =
-                filteredProducts.filter { it.name.contains(searchQuery, ignoreCase = true) }
+            filteredProducts = filterByQuery(filteredProducts,searchQuery)
         }
 
         if (sortBy.isNotEmpty()) {
@@ -75,7 +68,7 @@ class HomeScreenViewModel @Inject constructor(
         }
 
         updateState { currentState ->
-            (currentState as HomeScreenUIState.Success).copy(brandList = getBrandList())
+            (currentState as HomeScreenUIState.Success).copy(brandList = currentState.brandList?.ifEmpty { getBrandList() })
         }
 
 
@@ -104,24 +97,6 @@ class HomeScreenViewModel @Inject constructor(
             is HomeScreenUIEvent.OnFavoriteClick -> updateFavoriteStatus(event.productId, event.isFavorite)
         }
     }
-
-    init {
-        getProducts()
-    }
-
-    private fun getProducts() {
-        viewModelScope.launch(Dispatchers.IO) {
-            getProductsUseCase.invoke().collect {
-              if (it.isEmpty()) {
-                  val fromNetwork = getProductFromNetworkUseCase.invoke()
-                  insertProductsToCacheUseCase.invoke(fromNetwork)
-              }
-              productList = it
-              _products.value = it
-          }
-        }
-    }
-
     private fun addToCart(productId: String) {
         viewModelScope.launch(Dispatchers.IO) {
             addToCartUseCase.invoke(productId)
@@ -132,11 +107,8 @@ class HomeScreenViewModel @Inject constructor(
         _searchQuery.value = it
     }
 
-    private fun filterListByBrands(query: String) =
-        filterByBrands(filterList(query), _selectedBrands.value)
-
-    private fun filterList(query: String) =
-        productList?.filter { it.name.lowercase().contains(query.lowercase()) }
+    private fun filterByQuery(list: List<Product>,searchQuery: String) =
+        list.filter { it.name.contains(searchQuery, ignoreCase = true) }
 
     private fun getBrandList() = productList?.map { it.brand }?.distinct()
     private fun applyFilter(
@@ -145,7 +117,7 @@ class HomeScreenViewModel @Inject constructor(
     ) {
         viewModelScope.launch(Dispatchers.IO) {
             selectedSortBy.value = sortBy
-            val filteredList = filterByBrands(productList, brands)
+            val filteredList = productList?.let { filterByBrands(it, brands) }
 
             setSelectedBrands(brands)
 
@@ -175,11 +147,11 @@ class HomeScreenViewModel @Inject constructor(
         return list.sortedBy { it.price.toDouble() }
     }
 
-    private fun filterByBrands(sortedList: List<Product>?, brands: List<String>?): List<Product>? {
+    private fun filterByBrands(sortedList: List<Product>, brands: List<String>?): List<Product> {
         return if (brands.isNullOrEmpty()) {
             sortedList
         } else {
-            sortedList?.filter { it.brand in brands }
+            sortedList.filter { it.brand in brands }
         }
     }
 

@@ -1,8 +1,10 @@
 package com.eterationcase.app.core.domain.usecase
 
-import com.eterationcase.app.core.data.repository.Repository
 import com.eterationcase.app.core.model.Product
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
 import javax.inject.Inject
 
 /**
@@ -10,7 +12,21 @@ import javax.inject.Inject
  */
 
 class GetProductsUseCase @Inject constructor(
-    private val repository: Repository,
+    private val getProductsFromCacheUseCase: GetProductsFromCacheUseCase,
+    private val getProductFromNetworkUseCase: GetProductFromNetworkUseCase,
+    private val insertProductsToCacheUseCase: InsertProductsToCacheUseCase
 ) {
-    operator fun invoke(): Flow<List<Product>> = repository.getProductsFromCache()
+    operator fun invoke(): Flow<List<Product>> = flow {
+        getProductsFromCacheUseCase.invoke().collect { productsFromCache ->
+            if (productsFromCache.isNotEmpty()) {
+                emit(productsFromCache)
+            } else {
+                val productsFromNetwork = getProductFromNetworkUseCase.invoke()
+
+                insertProductsToCacheUseCase.invoke(productsFromNetwork)
+
+                emit(productsFromNetwork)
+            }
+        }
+    }.flowOn(Dispatchers.IO)
 }

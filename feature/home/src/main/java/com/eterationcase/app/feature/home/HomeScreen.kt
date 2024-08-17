@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -52,7 +53,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -287,7 +287,6 @@ fun ProductItem(
     onAddToCardClick: (productId: String) -> Unit,
     onFavoriteClick: (productId: String, isFavorite: Boolean) -> Unit
 ) {
-    val density = LocalDensity.current.density
 
     Card(
         modifier = modifier
@@ -325,18 +324,13 @@ fun ProductItem(
             text = "${product.price} ₺",
             color = Color(0xFF2A59FE)
         )
-        var padding by remember { mutableStateOf(0.dp) }
 
         Text(
-            modifier = Modifier,
+            modifier = Modifier.padding(horizontal = 8.dp).heightIn(min = 48.dp),
             text = product.name,
             color = Color.Black,
-            onTextLayout = {
-                val lineCount = it.lineCount
-                val height = (it.size.height / density).dp
-                println("lineCount: $lineCount, Height: $height")
-                padding = if (lineCount > 1) 0.dp else height
-            }
+            maxLines = 2,
+            overflow = TextOverflow.Ellipsis
         )
         ElevatedButton(
             modifier = Modifier

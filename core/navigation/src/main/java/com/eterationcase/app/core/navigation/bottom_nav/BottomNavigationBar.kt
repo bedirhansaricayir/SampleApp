@@ -39,6 +39,7 @@ internal fun BottomNavigationBar(
 
             NavigationBarItem(
                 selected = isSelected,
+                enabled = item.route != NavBarScreen.Profile,
                 label = { Text(text = item.title) },
                 icon = {
                     BadgedBox(
